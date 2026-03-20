@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/bhask/OneDrive/Desktop/xvault\" && npm install @supabase/supabase-js @supabase/ssr standardwebhooks 2>&1)",
+      "Bash(test:*)",
+      "Bash(head:*)",
+      "Bash(grep:*)",
+      "Bash(tail:*)",
+      "WebSearch",
+      "WebFetch(domain:21st.dev)",
+      "Bash(git:*)"
+    ]
+  }
+}
