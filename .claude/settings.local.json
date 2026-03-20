@@ -9,7 +9,10 @@
       "WebSearch",
       "WebFetch(domain:21st.dev)",
       "Bash(git:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(curl:*)",
+      "Bash(gh release:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }

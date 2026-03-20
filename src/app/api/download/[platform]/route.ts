@@ -39,7 +39,11 @@ export async function GET(
     console.error("Failed to track download event", error);
   }
 
-  const upstream = await fetch(config.href, { redirect: "follow" });
+  const githubToken = process.env.GITHUB_TOKEN;
+  const upstream = await fetch(config.href, {
+    redirect: "follow",
+    headers: githubToken ? { Authorization: `Bearer ${githubToken}` } : {},
+  });
 
   if (!upstream.ok || !upstream.body) {
     return NextResponse.json(
