@@ -44,6 +44,11 @@ export const metadata: Metadata = {
       "Real-time worldbuilding, dead-branch detection, and AI ghostwriting in your voice.",
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: "/XVault.svg",
+    shortcut: "/XVault.svg",
+    apple: "/XVault.svg",
+  },
 };
 
 export default function RootLayout({
