@@ -3,7 +3,11 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 import { trackDownloadEvent } from "@/lib/analytics";
-import { downloadConfig, isDownloadPlatform } from "@/lib/downloads";
+import {
+  downloadConfig,
+  getAssetApiUrl,
+  isDownloadPlatform,
+} from "@/lib/downloads";
 
 export async function GET(
   request: NextRequest,
@@ -17,12 +21,20 @@ export async function GET(
 
   const config = downloadConfig[platform];
 
-  if (!config.href) {
+  if (!config.assetId) {
     return NextResponse.json(
       {
-        error: `Missing download URL for ${config.label}`,
-        env: `DOWNLOAD_URL_${platform.toUpperCase()}`,
+        error: `Missing asset ID for ${config.label}`,
+        env: `DOWNLOAD_ASSET_ID_${platform.toUpperCase()}`,
       },
+      { status: 503 }
+    );
+  }
+
+  const githubToken = process.env.GITHUB_TOKEN;
+  if (!githubToken) {
+    return NextResponse.json(
+      { error: "Server misconfigured: missing GITHUB_TOKEN" },
       { status: 503 }
     );
   }
@@ -32,18 +44,33 @@ export async function GET(
   try {
     await trackDownloadEvent({
       platform,
-      destination: config.href,
+      destination: getAssetApiUrl(config.assetId),
       requestId,
     });
   } catch (error) {
     console.error("Failed to track download event", error);
   }
 
-  const githubToken = process.env.GITHUB_TOKEN;
-  const upstream = await fetch(config.href, {
-    redirect: "follow",
-    headers: githubToken ? { Authorization: `Bearer ${githubToken}` } : {},
+  // Step 1: call the GitHub API — it responds with a 302 to a signed S3 URL
+  const apiRes = await fetch(getAssetApiUrl(config.assetId), {
+    redirect: "manual",
+    headers: {
+      Authorization: `Bearer ${githubToken}`,
+      Accept: "application/octet-stream",
+    },
   });
+
+  // GitHub returns 302; grab the signed S3 location
+  const signedUrl = apiRes.headers.get("location");
+  if (!signedUrl) {
+    return NextResponse.json(
+      { error: "Asset unavailable", status: apiRes.status },
+      { status: 502 }
+    );
+  }
+
+  // Step 2: fetch the signed URL without auth (S3 rejects extra auth headers)
+  const upstream = await fetch(signedUrl);
 
   if (!upstream.ok || !upstream.body) {
     return NextResponse.json(
