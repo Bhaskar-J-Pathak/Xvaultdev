@@ -39,14 +39,28 @@ export async function GET(
     console.error("Failed to track download event", error);
   }
 
-  const response = NextResponse.redirect(config.href, { status: 307 });
-  response.cookies.set("xvault_did", requestId, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 365,
-    path: "/",
+  const upstream = await fetch(config.href, { redirect: "follow" });
+
+  if (!upstream.ok || !upstream.body) {
+    return NextResponse.json(
+      { error: "Asset unavailable", status: upstream.status },
+      { status: 502 }
+    );
+  }
+
+  const headers = new Headers({
+    "Content-Type": "application/octet-stream",
+    "Content-Disposition": `attachment; filename="${config.fileName}"`,
+    "Cache-Control": "no-store",
   });
 
-  return response;
+  const contentLength = upstream.headers.get("content-length");
+  if (contentLength) headers.set("Content-Length", contentLength);
+
+  headers.set(
+    "Set-Cookie",
+    `xvault_did=${requestId}; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}; Path=/${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
+  );
+
+  return new Response(upstream.body, { headers });
 }
