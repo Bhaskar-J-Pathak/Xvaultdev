@@ -22,13 +22,13 @@ function daysUntilReset(resetAt: string): number {
 function planBadgeColor(plan: Profile["plan"]) {
   switch (plan) {
     case "ultra":
-      return "border-purple-500/30 bg-purple-500/10 text-purple-300";
+      return "border-purple-500/30 bg-purple-50 text-purple-700";
     case "pro_plus":
-      return "border-[#9ff5d6]/30 bg-[#9ff5d6]/8 text-[#9ff5d6]";
+      return "border-[#7C3AED]/25 bg-[#7C3AED]/8 text-[#7C3AED]";
     case "pro":
-      return "border-blue-500/30 bg-blue-500/10 text-blue-300";
+      return "border-blue-500/25 bg-blue-50 text-blue-700";
     default:
-      return "border-white/12 bg-white/6 text-white/60";
+      return "border-black/10 bg-black/[0.04] text-[#1A1A1A]/60";
   }
 }
 

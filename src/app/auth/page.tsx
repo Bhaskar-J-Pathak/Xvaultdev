@@ -76,13 +76,14 @@ export default function AuthPage() {
       setLoading(false);
       return;
     }
-    if (data.session) {
-      const { access_token, refresh_token } = data.session;
-      const deepLink = `xvault://auth?access_token=${access_token}&refresh_token=${refresh_token}`;
-      // Attempt to open the Tauri app
-      window.location.href = deepLink;
+    if (!data.session) {
+      setError("Verification succeeded but no session was returned. Please try again.");
+      setLoading(false);
+      return;
     }
-    // Show success state whether or not the app opened
+    const { access_token, refresh_token } = data.session;
+    const deepLink = `xvault://auth?access_token=${encodeURIComponent(access_token)}&refresh_token=${encodeURIComponent(refresh_token)}`;
+    window.location.href = deepLink;
     setTimeout(() => {
       setStep("success");
       setLoading(false);
@@ -90,22 +91,22 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-24">
-      {/* Background orbs */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#FAFAF8] px-4 py-24">
+      {/* Background gradient orbs */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full"
+        className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full"
         style={{
           background:
-            "radial-gradient(circle, rgba(159,245,214,0.08) 0%, transparent 70%)",
-          filter: "blur(40px)",
+            "radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)",
+          filter: "blur(60px)",
         }}
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-1/3 h-64 w-64 rounded-full opacity-50"
+        className="pointer-events-none absolute right-0 bottom-1/4 h-80 w-80 rounded-full"
         style={{
-          background: "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(124,58,237,0.04) 0%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -118,12 +119,12 @@ export default function AuthPage() {
           transition={{ duration: 0.6, ease }}
           className="mb-10 flex justify-center"
         >
-          <Link href="/" className="flex items-center gap-3 text-white">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/8 text-xs font-semibold tracking-[0.24em] text-white/70">
+          <Link href="/" className="flex items-center gap-3 text-[#1A1A1A]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-[#1A1A1A] text-xs font-semibold tracking-[0.24em] text-white">
               XV
             </span>
-            <span className="font-display text-xl tracking-tight">
-              XVault<span className="ml-1 text-white/44">Studio</span>
+            <span className="font-display text-xl tracking-tight text-[#1A1A1A]">
+              XVault<span className="ml-1 text-[#1A1A1A]/44">Studio</span>
             </span>
           </Link>
         </motion.div>
@@ -138,21 +139,21 @@ export default function AuthPage() {
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.5, ease }}
             >
-              <div className="premium-panel animated-border rounded-[2rem] border border-white/10 p-8">
+              <div className="animated-border rounded-[2rem] border border-black/8 bg-white p-8 shadow-[0_4px_6px_rgba(0,0,0,0.04),0_20px_60px_rgba(0,0,0,0.07)]">
                 <div className="mb-7 text-center">
-                  <h1 className="font-display text-2xl font-bold tracking-tight text-white">
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-[#1A1A1A]">
                     Sign in to XVault
                   </h1>
-                  <p className="mt-2.5 text-sm leading-6 text-white/55">
+                  <p className="mt-2.5 text-sm leading-6 text-[#1A1A1A]/55">
                     No password needed. No credit card.
                   </p>
                 </div>
 
-                <div className="mb-6 flex items-center gap-3 rounded-2xl border border-[#9ff5d6]/15 bg-[#9ff5d6]/6 px-4 py-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#9ff5d6]/12">
-                    <span className="text-base">✦</span>
+                <div className="mb-6 flex items-center gap-3 rounded-2xl border border-[#7C3AED]/12 bg-[#7C3AED]/5 px-4 py-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#7C3AED]/10">
+                    <span className="text-base text-[#7C3AED]">✦</span>
                   </span>
-                  <p className="text-sm font-medium text-[#9ff5d6]/90">
+                  <p className="text-sm font-medium text-[#7C3AED]">
                     Start with 300 free AI credits
                   </p>
                 </div>
@@ -161,12 +162,12 @@ export default function AuthPage() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-white/44"
+                      className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[#1A1A1A]/44"
                     >
                       Email address
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                      <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1A1A1A]/30" />
                       <input
                         id="email"
                         type="email"
@@ -175,13 +176,13 @@ export default function AuthPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full rounded-xl border border-white/10 bg-white/[0.05] py-3.5 pl-11 pr-4 text-sm text-white placeholder-white/28 outline-none ring-0 transition-all focus:border-[#9ff5d6]/30 focus:bg-white/[0.08] focus:ring-1 focus:ring-[#9ff5d6]/20"
+                        className="w-full rounded-xl border border-black/10 bg-black/[0.03] py-3.5 pl-11 pr-4 text-sm text-[#1A1A1A] placeholder-[#1A1A1A]/28 outline-none transition-all focus:border-[#7C3AED]/40 focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/12"
                       />
                     </div>
                   </div>
 
                   {error && (
-                    <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-400">
+                    <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-3 text-sm text-red-600">
                       <AlertCircle className="h-4 w-4 shrink-0" />
                       {error}
                     </div>
@@ -190,7 +191,7 @@ export default function AuthPage() {
                   <button
                     type="submit"
                     disabled={loading || !email.trim()}
-                    className="btn-shimmer flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-semibold tracking-[0.02em] text-black transition-all disabled:opacity-50 hover:not-disabled:-translate-y-0.5"
+                    className="btn-shimmer flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] py-3.5 text-sm font-semibold tracking-[0.02em] text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -203,13 +204,13 @@ export default function AuthPage() {
                   </button>
                 </form>
 
-                <p className="mt-6 text-center text-xs text-white/32">
+                <p className="mt-6 text-center text-xs text-[#1A1A1A]/32">
                   By continuing you agree to our{" "}
-                  <Link href="/terms" className="text-white/52 underline-offset-2 hover:underline">
+                  <Link href="/terms" className="text-[#1A1A1A]/52 underline-offset-2 hover:underline">
                     Terms
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-white/52 underline-offset-2 hover:underline">
+                  <Link href="/privacy" className="text-[#1A1A1A]/52 underline-offset-2 hover:underline">
                     Privacy Policy
                   </Link>
                   .
@@ -227,20 +228,20 @@ export default function AuthPage() {
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.5, ease }}
             >
-              <div className="premium-panel animated-border rounded-[2rem] border border-white/10 p-8">
+              <div className="animated-border rounded-[2rem] border border-black/8 bg-white p-8 shadow-[0_4px_6px_rgba(0,0,0,0.04),0_20px_60px_rgba(0,0,0,0.07)]">
                 <div className="mb-7 text-center">
-                  <h1 className="font-display text-2xl font-bold tracking-tight text-white">
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-[#1A1A1A]">
                     Check your email
                   </h1>
-                  <p className="mt-2.5 text-sm leading-6 text-white/55">
+                  <p className="mt-2.5 text-sm leading-6 text-[#1A1A1A]/55">
                     We sent a 6-digit code to{" "}
-                    <span className="font-medium text-white/80">{email}</span>
+                    <span className="font-medium text-[#1A1A1A]/80">{email}</span>
                   </p>
                 </div>
 
                 <form onSubmit={handleVerifyOtp} className="space-y-6">
                   <div>
-                    <label className="mb-4 block text-center text-xs font-semibold uppercase tracking-[0.16em] text-white/44">
+                    <label className="mb-4 block text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#1A1A1A]/44">
                       Enter code
                     </label>
                     <div
@@ -257,14 +258,14 @@ export default function AuthPage() {
                           value={digit}
                           onChange={(e) => handleOtpInput(i, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                          className="h-14 w-12 rounded-xl border border-white/10 bg-white/[0.05] text-center text-xl font-bold text-white outline-none transition-all focus:border-[#9ff5d6]/40 focus:bg-white/[0.08] focus:ring-1 focus:ring-[#9ff5d6]/25"
+                          className="h-14 w-12 rounded-xl border border-black/10 bg-black/[0.03] text-center text-xl font-bold text-[#1A1A1A] outline-none transition-all focus:border-[#7C3AED]/50 focus:bg-white focus:ring-2 focus:ring-[#7C3AED]/15"
                         />
                       ))}
                     </div>
                   </div>
 
                   {error && (
-                    <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-400">
+                    <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-3 text-sm text-red-600">
                       <AlertCircle className="h-4 w-4 shrink-0" />
                       {error}
                     </div>
@@ -273,7 +274,7 @@ export default function AuthPage() {
                   <button
                     type="submit"
                     disabled={loading || otp.join("").length < 6}
-                    className="btn-shimmer flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-semibold tracking-[0.02em] text-black transition-all disabled:opacity-50 hover:not-disabled:-translate-y-0.5"
+                    className="btn-shimmer flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] py-3.5 text-sm font-semibold tracking-[0.02em] text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -289,7 +290,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={() => { setStep("email"); setError(""); setOtp(["","","","","",""]); }}
-                      className="text-sm text-white/40 transition-colors hover:text-white/70"
+                      className="text-sm text-[#1A1A1A]/40 transition-colors hover:text-[#1A1A1A]/70"
                     >
                       Use a different email
                     </button>
@@ -307,14 +308,14 @@ export default function AuthPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease }}
             >
-              <div className="premium-panel animated-border rounded-[2rem] border border-white/10 p-8 text-center">
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#9ff5d6]/20 bg-[#9ff5d6]/8">
-                  <CheckCircle2 className="h-8 w-8 text-[#9ff5d6]" />
+              <div className="animated-border rounded-[2rem] border border-black/8 bg-white p-8 text-center shadow-[0_4px_6px_rgba(0,0,0,0.04),0_20px_60px_rgba(0,0,0,0.07)]">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#7C3AED]/20 bg-[#7C3AED]/8">
+                  <CheckCircle2 className="h-8 w-8 text-[#7C3AED]" />
                 </div>
-                <h1 className="font-display text-2xl font-bold tracking-tight text-white">
+                <h1 className="font-display text-2xl font-bold tracking-tight text-[#1A1A1A]">
                   You&apos;re signed in
                 </h1>
-                <p className="mt-3 text-sm leading-6 text-white/55">
+                <p className="mt-3 text-sm leading-6 text-[#1A1A1A]/55">
                   XVault Studio is opening on your computer. If nothing happened,
                   open the app manually or download it below.
                 </p>
@@ -322,13 +323,13 @@ export default function AuthPage() {
                 <div className="mt-7 space-y-3">
                   <Link
                     href="/dashboard"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] py-3.5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.09]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/8 bg-black/[0.03] py-3.5 text-sm font-semibold text-[#1A1A1A]/80 transition-colors hover:bg-black/[0.06]"
                   >
                     View dashboard
                   </Link>
                   <Link
                     href="/#download"
-                    className="block text-center text-sm text-white/36 transition-colors hover:text-white/60"
+                    className="block text-center text-sm text-[#1A1A1A]/36 transition-colors hover:text-[#1A1A1A]/60"
                   >
                     Download the app
                   </Link>
