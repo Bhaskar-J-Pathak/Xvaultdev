@@ -1,12 +1,13 @@
 export type DownloadPlatform = "windows" | "mac" | "linux";
 
-const GITHUB_REPO = "Bhaskar-J-Pathak/XVault_Studio";
+export const GITHUB_REPO = "Bhaskar-J-Pathak/XVault_Studio";
 
 type DownloadConfig = {
   label: string;
   shortLabel: string;
   fileName: string;
-  assetId?: number;
+  /** Suffix of the release asset name to match (e.g. "_x64-setup.exe") */
+  assetSuffix: string;
   availability: string;
 };
 
@@ -15,35 +16,25 @@ export const downloadConfig: Record<DownloadPlatform, DownloadConfig> = {
     label: "Windows",
     shortLabel: "Win",
     fileName: "XVault-Studio-Setup.exe",
-    assetId: process.env.DOWNLOAD_ASSET_ID_WINDOWS
-      ? Number(process.env.DOWNLOAD_ASSET_ID_WINDOWS)
-      : undefined,
+    assetSuffix: "_x64-setup.exe",
     availability: "Windows 10+",
   },
   mac: {
     label: "macOS",
     shortLabel: "Mac",
     fileName: "XVault-Studio.dmg",
-    assetId: process.env.DOWNLOAD_ASSET_ID_MAC
-      ? Number(process.env.DOWNLOAD_ASSET_ID_MAC)
-      : undefined,
+    assetSuffix: "_aarch64.dmg",   // Apple Silicon; Intel Macs run via Rosetta 2
     availability: "Apple Silicon + Intel",
   },
   linux: {
     label: "Linux",
     shortLabel: "Linux",
     fileName: "XVault-Studio.AppImage",
-    assetId: process.env.DOWNLOAD_ASSET_ID_LINUX
-      ? Number(process.env.DOWNLOAD_ASSET_ID_LINUX)
-      : undefined,
+    assetSuffix: "_amd64.AppImage",
     availability: "AppImage",
   },
 };
 
 export function isDownloadPlatform(value: string): value is DownloadPlatform {
   return value in downloadConfig;
-}
-
-export function getAssetApiUrl(assetId: number): string {
-  return `https://api.github.com/repos/${GITHUB_REPO}/releases/assets/${assetId}`;
 }
