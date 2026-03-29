@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, Suspense } from "react";
+import { useSearchParams }            from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Mail, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +11,10 @@ const ease: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 type Step = "email" | "otp" | "success";
 
-export default function AuthPage() {
+function AuthPageInner() {
+  const searchParams = useSearchParams();
+  const nonce        = searchParams.get("nonce");
+
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -82,8 +86,33 @@ export default function AuthPage() {
       return;
     }
     const { access_token, refresh_token } = data.session;
-    const deepLink = `xvault://auth?access_token=${encodeURIComponent(access_token)}&refresh_token=${encodeURIComponent(refresh_token)}`;
-    window.location.href = deepLink;
+
+    // If opened from the desktop app (nonce present), send tokens back via
+    // Supabase Realtime broadcast — no browser protocol dialog needed.
+    if (nonce) {
+      try {
+        const channel = supabase.channel(`auth:${nonce}`);
+        await new Promise<void>((resolve) => {
+          channel.subscribe((status) => { if (status === "SUBSCRIBED") resolve(); });
+        });
+        await channel.send({
+          type: "broadcast",
+          event: "tokens",
+          payload: { access_token, refresh_token },
+        });
+        // Brief delay so the message is flushed before we unsubscribe
+        await new Promise((r) => setTimeout(r, 400));
+        await supabase.removeChannel(channel);
+      } catch (e) {
+        console.error("Realtime broadcast failed:", e);
+        // Fall back to deep link if Realtime fails
+        window.location.href = `xvault://auth?access_token=${encodeURIComponent(access_token)}&refresh_token=${encodeURIComponent(refresh_token)}`;
+      }
+    } else {
+      // Opened directly in browser (not from app) — try deep link anyway
+      window.location.href = `xvault://auth?access_token=${encodeURIComponent(access_token)}&refresh_token=${encodeURIComponent(refresh_token)}`;
+    }
+
     setTimeout(() => {
       setStep("success");
       setLoading(false);
@@ -340,5 +369,13 @@ export default function AuthPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthPageInner />
+    </Suspense>
   );
 }
